@@ -17,7 +17,7 @@ Charter Boat Bookings is a boat booking system for captains - Sunset Sails, Days
 
 
 ## Description
-This is a plugin designed for WordPress. The goal of this plugin is to serve as a backend REST API for whatever blocks, admin, etc needs to be created in ReactJS to build the UX. 
+WordPress Plugin supporting Rest API structure for charter boat bookings and reservations. The goal of this plugin is to serve as a backend REST API for whatever blocks, admin, etc needs to be created in ReactJS to build the UX. 
 
 After several years of this plugin being a WooCommerce extension, I realized that it really wasn't working for the bookings object to be so entangled with the payments. This was consistent feedback from all my customers, including my husband. Everyone wants more direct control over the bookings - to CRUD the bookings regardless of payment status. There were a couple other major things I did naively when I first wrote this plugin, and honestly then I neglected it for a few years. 
 
