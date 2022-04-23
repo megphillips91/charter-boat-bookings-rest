@@ -24,7 +24,7 @@
  along with Charter Boat Bookings. If not, see http://www.gnu.org/licenses/gpl-3.0.html.
  */
 
-namespace Charter_Bookings;
+namespace Charter_Boat_Bookings;
 use \Datetime;
 use \DateTimeZone;
 use \DateInterval;
