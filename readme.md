@@ -29,7 +29,7 @@ The goal is still paid bookings through WooCommerce, but less entangled. The ide
 - the concerns will be very separate and give captains more control over how and when to accept online payment reservations and final payments. 
 - I think I can trigger woocommerce plugin install/activation wizard when the content creator chooses the calendar booking block so I'm going to experiment with all that before I even try to begin publishing this integration. 
 
-With the new WooCommerce Store API and the **!coming soon!** the new order object table I think its going to be far far less code to maintain and better overall for me to create something that I am much happier with that functions less 'buggy'. I don't really have much of a choice because my husband has shopped all the other booking systems and still wants this one even after I pleaded with him to check out other options. So, here we are. The whole thing sort of came to a suddenly critical problem when he had customers at the dock that he was not prepared for. Uh Oh!
+With the new WooCommerce Store API and the **coming soon** new order object table I think its going to be far far less code to maintain and better overall for me to create something that I am much happier with that functions less 'buggy'. I don't really have much of a choice because my husband has shopped all the other booking systems and still wants this one even after I pleaded with him to check out other options. So, here we are. The whole thing sort of came to a suddenly critical problem when he had customers at the dock that he was not prepared for. Uh Oh!
 
 At this point, the plan is to use this particular plugin as a sort of 'internal api' and transition slowly.
 
