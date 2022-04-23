@@ -29,7 +29,7 @@ The goal is still paid bookings through WooCommerce, but less entangled. The ide
 - the concerns will be very separate and give captains more control over how and when to accept online payment reservations and final payments. 
 - I think I can trigger woocommerce plugin install/activation wizard when the content creator chooses the calendar booking block so I'm going to experiment with all that before I even try to begin publishing this integration. 
 
-With the new WooCommerce Store API and the **coming soon** new order object table I think its going to be far far less code to maintain and better overall for me to create something that I am much happier with that functions less 'buggy'. I don't really have much of a choice because my husband has shopped all the other booking systems and still wants this one even after I pleaded with him to check out other options. So, here we are. The whole thing sort of came to a suddenly critical problem when he had customers at the dock that he was not prepared for. Uh Oh!
+With the new WooCommerce Store API and the **coming soon** new order object table I think its going to be far far less code to maintain and better overall for me to create something that I am much happier with that functions less 'buggy'. I don't really have much of a choice because my husband has shopped all the other booking systems and still wants this one even after I pleaded with him to check out other options. So, here we are. The whole thing sort of came to a suddenly critical problem when he had customers at the dock that he was not prepared for because of errors in my crappy old poorly maintained plugin. Uh Oh!
 
 At this point, the plan is to use this particular plugin as a sort of 'internal api' and transition slowly.
 
@@ -46,10 +46,12 @@ Each of the blocks and the admin experience will live in separate plugins. Even 
 The goal is to publish the booking calendar block and a "global" booking calendar block like the one that I offered in Charter Boat Bokings Pro. The global block will pull all the charters onto the same availability calendar. The Remote Booking Calendar block will offer affiliate bookings for boats living on different URLs. 
 
 ### Charter Bookings Admin Experience
-and a react app which can take all the settings, etc from the WP-Admin or maybe in a standable ReactJS PWA. I haven't decided yet on that one. Its honestly easier to do the standalone, and I think there is more long term potential if I do it that way. IDK.
+And ReactJS WP-Admin experience or maybe a standable ReactJS PWA. I haven't decided yet on that one. Its honestly easier to do the standalone, and I think there is more long term potential if I do it that way because in theory, a SaaS Bookings Platform could be offered separately as its own thing not requiring an integrated WP Installation. And also, the components could perform double duty. 
 
 ## History
+//for another time
 
 ## Separation of concerns
+//for another time
 
 
