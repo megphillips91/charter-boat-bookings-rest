@@ -19,13 +19,30 @@ class CharterBoat_Rest_API {
     }
 
     public function register_routes(){
-
+        //details on the boat and business operations
         register_rest_route( 'charter-boat-bookings/v3', 'charter-boat', array(
             'methods' => 'GET',
             'callback' =>array($this, 'charter_boat'),
             'permission_callback' => '__return_true'
             ) 
         );
+
+        //check availabilty
+        register_rest_route( 'charter-boat-bookings/v3', 'check-availability', array(
+            'methods' => 'POST',
+            'callback' =>array($this, 'check_availability'),
+            'permission_callback' => '__return_true'
+            ) 
+        );
+
+        //check availabilty
+        register_rest_route( 'charter-boat-bookings/v3', 'reserve-charter', array(
+            'methods' => 'POST',
+            'callback' =>array($this, 'reserve_charter'),
+            'permission_callback' => '__return_true'
+            ) 
+        );
+
 
 
 
@@ -41,6 +58,43 @@ class CharterBoat_Rest_API {
         $params = $request->get_params();
         $boat = new Charter_Boat();
         return $boat;
+    }
+
+    /**
+     * @param start_datetime Y-m-d H:i:s in UTC
+     * @param duration in minutes
+     * @return object
+     */
+    public function check_availability(\WP_REST_Request $request){
+        $params = $request->get_params();
+        $response = array();
+        if( !isset($params['start_datetime']) || !isset($params['duration']) ){
+            $response['error'] = "You are doing it wrong: start_datetime and duration are required parameters";
+            return $response;
+        }
+        $availability = new CB_Availability($params['start_datetime'], $params['duration']);
+        return $availability;
+    }
+
+    /**
+     * Reserve the charter by passing in the required fields
+     * @param string $start_datetime Y-m-d H:i:s in UTC
+     * @param string $duration  in minutes
+     * @param string customer_id  optional
+     * @param string customer_name string required //first and last with spaces
+     * @param string customer_email string required
+     * @param string customer_phone string required but not validated for actual phone
+     * @param int start_location required
+     * @param int end_location required
+     * @param bool is_private required
+     * @param int tickets optional default 1
+     * 
+     */
+    public function reserve_charter(\WP_REST_Request $request){
+        $params = $request->get_params();
+        $booking = new Charter_Booking();
+        $booking->save_booking($params);
+        return $booking;
     }
     
 

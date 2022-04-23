@@ -4,6 +4,9 @@ use \Datetime;
 use \DateTimeZone;
 use \DateInterval;
 
+/**
+ * blackouts are specified as a datetime string in
+ */
 class CB_Blackouts {
   public $number;
   public $blackouts;
@@ -20,7 +23,7 @@ class CB_Blackouts {
 
   private function set_blackouts(){
     $blackouts = array();
-    for($x = 0; $x <= $this->number; $x++){
+    for($x = 1; $x <= $this->number; $x++){
       $blackouts[]= array(
         'start'=>get_option('cb_blackout_start_'.$x),
         'end'=>get_option('cb_blackout_end_'.$x),

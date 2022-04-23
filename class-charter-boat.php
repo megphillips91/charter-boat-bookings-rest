@@ -21,10 +21,11 @@ class Charter_Boat {
    public $wind_units;
    public $weeks_in_advance;
    public $durations;
-   public $buffer_between;
-   public $hours_prior_notice;
+   public $buffer_between; //so this gets added to each charter duration during availability checks
+   public $hours_prior_notice; //so this gets added to the start time of the desired start time to check if that works?
    public $open_days;
-   public $black_outs;
+   public $blackouts;
+   private $weather_key;
 
    public function __construct(){
         $this->get_boat_settings();
@@ -43,7 +44,7 @@ class Charter_Boat {
        $this->wind_units = get_option('cb_wind_units');
        $this->temperature_units = get_option('cb_temp_units');
        $this->weather_key = get_option('cb_open_weather_key');
-       $this->black_outs = new CB_Blackouts();
+       $this->blackouts = new CB_Blackouts();
    }
 
 }
