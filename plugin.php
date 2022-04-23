@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Charter Boat Bookings
  * Plugin URI: http://msp-media.org/projects/plugins/charter-bookings
- * Description: Charter Boat Bookings is is a back-end REST API for charter boat bookings.
+ * Description: Charter Boat Bookings is is a back-end REST API for charter boats to take online bookings and reservations.
  * Contributors: megphillips91
  * Author URI: http://msp-media.org/
  * Version: 1.7.1
