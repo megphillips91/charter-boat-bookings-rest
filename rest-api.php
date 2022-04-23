@@ -2,7 +2,7 @@
 /**
  * Create wp rest api namespace and endpoint to post new csv files
  */
-namespace Charter_Bookings;
+namespace Charter_Boat_Bookings;
 use \DateTime;
 use \DateInterval;
 use \DateTimeZone;
@@ -20,9 +20,9 @@ class CharterBoat_Rest_API {
 
     public function register_routes(){
 
-        register_rest_route( 'charter-bookings/v3', 'charter-boat', array(
+        register_rest_route( 'charter-boat-bookings/v3', 'charter-boat', array(
             'methods' => 'GET',
-            'callback' =>array($this, 'get_boat'),
+            'callback' =>array($this, 'charter_boat'),
             'permission_callback' => '__return_true'
             ) 
         );
@@ -37,7 +37,7 @@ class CharterBoat_Rest_API {
      * Each of these is a callback function. I have them in order and 
      * they coorespond to the routes above in the same order from top to bottom of page
      */
-    public function get_boat(\WP_REST_Request $request){
+    public function charter_boat(\WP_REST_Request $request){
         $params = $request->get_params();
         $boat = new Charter_Boat();
         return $boat;

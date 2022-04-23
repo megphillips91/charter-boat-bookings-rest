@@ -2,7 +2,7 @@
 /**
  * Create wp rest api namespace and endpoint to post new csv files
  */
-namespace Charter_Bookings;
+namespace Charter_Boat_Bookings;
 use \DateTime;
 use \DateInterval;
 use \DateTimeZone;

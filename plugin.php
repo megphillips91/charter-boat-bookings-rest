@@ -2,10 +2,7 @@
 /**
  * Plugin Name: Charter Boat Bookings
  * Plugin URI: http://msp-media.org/projects/plugins/charter-bookings
- * Description: Charter Boat Bookings is a bookings plugin designed gutenberg-first as a REST-API backend server. It offers the support that a charter boat booking system will need 
- * to serve the data needed for a platform agnostic UX. This plugin is one of a series of plugins intended to be used as a package that can provide a clean 
- * separation of concerns, integrate with the WooCommerce Store and Rest API, and even other platforms. This plugin could be used as a SaaS backend or pretty much anything. 
- * Author: megphillips91
+ * Description: Charter Boat Bookings is is a back-end REST API for charter boat bookings.
  * Contributors: megphillips91
  * Author URI: http://msp-media.org/
  * Version: 1.7.1
@@ -41,7 +38,12 @@ if ( ! defined( 'ABSPATH' ) ) {
   * Include plugin files
   */
 
-  require_once plugin_dir_path( __FILE__ ) . 'rest-api.php';
+require_once plugin_dir_path( __FILE__ ) . 'rest-api.php';
+require_once plugin_dir_path( __FILE__ ) . 'class-location.php';
+require_once plugin_dir_path( __FILE__ ) . 'class-blackouts.php';
+require_once plugin_dir_path( __FILE__ ) . 'class-charter-boat.php';
+require_once plugin_dir_path( __FILE__ ) . 'class-charter-booking.php';
+
 
 
 ?>
