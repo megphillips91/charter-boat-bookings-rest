@@ -93,6 +93,13 @@ class Charter_Booking {
         $this->errors['db_error'] = $wpdb->print_error();
     }
 
+    /**
+     * @param array args
+     */
+    public function edit_booking($args){
+
+    }
+
 
 }
 

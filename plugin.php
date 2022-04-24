@@ -34,6 +34,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+//MEGTODO: delete this before publishing
+add_filter( 'wp_is_application_passwords_available', '__return_true' );
 /**
   * Include plugin files
   */
@@ -90,12 +92,14 @@ function cb_maybe_create_tables(){
  */ 
 
 
- /**
-  * =======================================
-  * ON PLUGIN DELETION
-  * functions to be called on PLUGIN DELETION - i.e. purge all custom data and tables
-  * =======================================
-  */
-  // MEGTODO: deactivation hook to delete the sunset times table which we do not need.
+/**
+* =======================================
+* ON PLUGIN DELETION
+* functions to be called on PLUGIN DELETION - i.e. purge all custom data and tables
+* =======================================
+*/
+// MEGTODO: deactivation hook to delete the sunset times table which we do not need.
+ 
+
 
 ?>
