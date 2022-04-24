@@ -7,9 +7,9 @@ use \DateTime;
 use \DateInterval;
 use \DateTimeZone;
 
-$charterboat_rest = new CharterBoat_Rest_API();
+$charterboat_rest = new Charter_Boat_Rest_API();
 
-class CharterBoat_Rest_API {
+class Charter_Boat_Rest_API {
     private $timezone;
 
     public function __construct(){
