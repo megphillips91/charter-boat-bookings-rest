@@ -6,7 +6,6 @@ namespace Charter_Boat_Bookings;
 use \DateTime;
 use \DateInterval;
 use \DateTimeZone;
-use Automattic\WooCommerce\Client;
 
 $charterboat_rest = new CharterBoat_Rest_API();
 

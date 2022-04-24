@@ -90,14 +90,43 @@ class Charter_Booking {
         if($wpdb->insert_id !== 0){
            $this->get_booking($this->booking_id);
         }
-        $this->errors['db_error'] = $wpdb->print_error();
+        $this->errors['db_error'] = $wpdb->last_error();
     }
 
     /**
      * @param array args
      */
-    public function edit_booking($args){
-
+    public function edit_booking($id, $args){
+       global $wpdb;
+       $charter_attributes = array(
+        'booking_status' => '%s',
+        'start_datetime' => '%s',
+        'duration'=> '%f',
+        'start_location'=> '%s',
+        'end_location'=> '%s',
+        'tickets'=> '%d',
+        'is_private'=> '%s',
+        'customer_name'=> '%s',
+        'customer_phone'=> '%s',
+        'customer_email'=> '%s',
+       );
+       $type = array();
+       foreach($args as $key=>$arg){
+            $type[] = $charter_attributes[$key];
+       }
+       
+        $wpdb->update(
+            "{$wpdb->prefix}charter_boat_bookings",
+            $args,
+            array(
+                'id'=>$id
+            ),
+            $type,
+            array(
+                '%d'
+            )
+        );
+        $this->get_booking($id);
     }
 
 
