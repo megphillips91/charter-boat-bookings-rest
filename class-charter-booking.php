@@ -27,6 +27,7 @@ class Charter_Booking {
     public $booking_meta;
     public $date_object;
     public $errors;
+    public $id_query;
     public $booking_args;
 
     public function __construct(){
@@ -34,36 +35,59 @@ class Charter_Booking {
     }
 
     public function get_booking($id){
+        $this->id = intval($id);
         global $wpdb;
         $booking = $wpdb->get_row(
           $wpdb->prepare("SELECT * from {$wpdb->prefix}charter_boat_bookings WHERE id=%d",
           $this->id)
         );
-        $this->errors['db_error'] = $wpdb->print_error();
+        $this->errors['db_error'] = $wpdb->last_error;
+        $this->id_query = $wpdb->last_query;
         if($booking){
             foreach($booking as $key=>$value){
             $this->$key = $value;
           }
         }
-    
     }
 
     /**
      * pass in an array of booking details
      */
     public function save_booking($booking_args){
-        $this->booking_args = $booking_args;
-        $this->argstype = gettype($booking_args);
         //MEGTODO: set up errors for required fields
         global $wpdb;
+        $this->booking_args = $booking_args;
         
-        $wpdb->insert(
-            $wpdb->prefix.'charter_boat_bookings',
-            $this->booking_args
+        //setting up the query
+        $wpdb->insert( 
+            $wpdb->prefix.'charter_boat_bookings', 
+            array(
+                'booking_status' => $booking_args['booking_status'],
+                'start_datetime' => $booking_args['start_datetime'],
+                'duration' => $booking_args['duration'],
+                'start_location'=>$booking_args['start_location'],
+                'end_location'=>$booking_args['end_location'],
+                'tickets'=>$booking_args['tickets'],
+                'is_private'=>$booking_args['is_private'],
+                'customer_name'=>$booking_args['customer_name'],
+                'customer_phone'=>$booking_args['customer_phone'],
+                'customer_email'=>$booking_args['customer_email'],
+            ),
+            array(
+                '%s',
+                '%s',
+                '%f',
+                '%s',
+                '%s',
+                '%d',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+            )
         );
-        
         $this->booking_id = $wpdb->insert_id;
-        if($this->booking_id !== 0){
+        if($wpdb->insert_id !== 0){
            $this->get_booking($this->booking_id);
         }
         $this->errors['db_error'] = $wpdb->print_error();

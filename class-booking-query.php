@@ -6,37 +6,44 @@ use \DateInterval;
 
 /**
  * CB_Booking_Query
- *
  * WPDB query against fields of the bookings table.
- *
- * @param array $args = associative array;
- * fails if bad array keys or values are passed into the query.
- * @param string $args['charter_date] specify charter_date as YYYY-MM-DD with no time specified
- * @return array an array of booking objects
- * NOTE FROM MEG: on preparing the queries - read comment on line 30. I am preparing the query options in the methods within lines 58-159 and then setting the prepared query into the $query property of this class. Then I am running the query.
- * NOTE FROM MEG: on validating the query data - see method args_are_valid which checks type on the arguments before sending them into $wpdb->prepare
+ * @param string required field: id, customer_email, customer_phone, booking_status, date_range, past, future
+ * @param string required value: date_range comma separated string (ex: start_datetime, end_datetime)
+ * @param string optional sort by start_datetime: ASC, DESC (default ASC)
  */
 
 class CB_Booking_Query {
+  public $field;
+  public $value;
   public $query_type;
   public $query;
   public $ids;
   public $bookings;
-  public $args;
+  public $wpdb_last_query;
+  public $db_error;
+  public $param_errors;
 
-  public function __construct($args, $type = NULL){
+  public function __construct($field, $value, $sort = ASC){
+    $this->field = $field;
+    $this->value = trim($value);
+    $this->sort = $sort;
+    $this->param_errors = array();
     global $wpdb;
-    if(NULL === $type){trigger_error("must provide query type. Options are date, date_range, simple, datetime", E_USER_ERROR);}
-    $this->query_type = $type;
-    $this->args = (NULL === $args) ? array() : $args ;
+    if(NULL === $field){trigger_error("must provide query type. Options are date, date_range, simple, datetime", E_USER_ERROR);}
+    $this->query_type = $this->field;
     if($this->args_are_valid()){
-      $prepare_query = 'prepare_'.$type.'_query';
+      $prepare_query = 'prepare_'.$field.'_query';
       $this->$prepare_query(); //doing a variable method name here to call the query preparation methods for the different types of booking queries I am offering here (hope this is okay :) 
       $results = $wpdb->get_results($this->query);
+      $wpdb->show_errors();
+      $this->last_error = $wpdb->last_error;
+      $this->wpdb_last_query = $wpdb->last_query;
       $this->ids =  cb_wp_collapse($results, 'id') ;
       $this->bookings = array();
       foreach($this->ids as $id){
-        $this->bookings[] = new Charter_Booking( intval($id) );
+        $charter_booking = new Charter_Booking();
+        $charter_booking->get_booking($id);
+        $this->bookings[] = $charter_booking;
       }
     } else {
       return false;
@@ -48,16 +55,17 @@ class CB_Booking_Query {
   private function args_are_valid(){
     switch ($this->query_type){
 
-      case 'simple':
-        if( is_int($this->args['id']) ){
+      case 'id':
+        if( is_int($this->value) ){
           return true;
         } else {
+          $this->param_errors['value'] = 'id must be an integer';
           return false;
         }
         break;
 
       case 'future':
-          if( 'future' === $this->args['future'] ){
+          if( 'future' === $this->value ){
             return true;
           } else {
             return false;
@@ -65,7 +73,7 @@ class CB_Booking_Query {
           break;
 
       case 'past':
-        if( 'past' === $this->args['past'] ){
+        if( 'past' === $this->value ){
           return true;
         } else {
           return false;
@@ -73,25 +81,40 @@ class CB_Booking_Query {
         break;
 
       case 'booking_status':
-        if( 'confirmed' === $this->args['booking_status'] || 'reserved' === $this->args['booking_status'] || 'all' === $this->args['booking_status'] ){
+        if( 'confirmed' === $this->value || 'reserved' === $this->value || 'all' === $this->value ){
           return true;
         } else {
           return false;
         }
         break;
-
-      case 'date':
-        return true;
-        break;
       
       case 'date_range':
-        if( !isset($this->args['date_range']) ){
+        if( !isset($this->value) ){
           return false;
         } else {
-          $date_range = $this->args['date_range'];
-          if( array_key_exists('start', $date_range) && array_key_exists('end', $date_range) ){
+          $this->set_date_range_array();
+          //MEGTODO: better validation on the string format
+          if( array_key_exists('start', $this->value) && array_key_exists('end', $this->value) ){
             return true;
           }
+        }
+        break;
+      
+      case 'customer_email':
+        if( !isset($this->value) ){
+          return false;
+        } else {
+          //MEGTODO: validate email here
+          return true;
+        }
+        break;
+      
+      case 'customer_phone':
+        if( !isset($this->value) ){
+          return false;
+        } else {
+          //MEGTODO: validate phone here
+          return true;
         }
         break;
 
@@ -105,144 +128,111 @@ class CB_Booking_Query {
 
   }
 
-  private function prepare_datetime_query(){
-    if( NULL === $this->args){
-      return false;
-    } else {
-      $qry = "SELECT id FROM ".$wpdb->prefix."charter_bookings  ";
-      $qry .= "WHERE charter_date = '".$this->args['datetime']."' ";
-      if(count($this->args) >= 2){
-          $x=0;
-        foreach($this->args as $key=>$value){
-          if($key != 'datetime' && $key != 'sort'){
-            $x++;
-            $qry .=  " AND " ;
-            $qry .= " ".$key." = '".$value."'";
-          }
-        }
+  private function set_date_range_array(){
+    $values = explode(', ', $this->value);
+    $date_range = array();
+    foreach($values as $value){
+      if( str_contains( $value, 'start:' ) ){
+        $date_range['start'] = str_replace('start: ', '', $value);
       }
-      $this->query = $qry;
-      return $qry;
+      if( str_contains( $value, 'end:' ) ){
+        $date_range['end'] = str_replace('end: ', '', $value);
+      }
     }
+    $this->value = $date_range;
   }
 
-  private function prepare_simple_query(){
+  private function prepare_id_query(){
     global $wpdb;
-    $qry = "SELECT id FROM ".$wpdb->prefix."charter_bookings  ";
-    if(count($this->args) >= 1){
-    $qry .= '  WHERE';
-    $x=0;
-    foreach($this->args as $key=>$value){
-      $x++;
-      $qry .= ($x == 1) ? "  " : " AND " ;
-      $qry .= " ".$key." = %d";
-    }
-    }
-    $qry .= " ORDER BY charter_date DESC";
-    $this->query = $wpdb->prepare($qry, $value);
+    $qry = "SELECT id FROM {$wpdb->prefix}charter_boat_bookings WHERE id=%d";
+    $qry .= " ORDER BY start_datetime DESC";
+    $this->query = $wpdb->prepare($qry, $this->value);
   }
 
-
-  private function prepare_date_query(){
-    global $wpdb;
-    if(isset($this->args['booking_status']) && is_array($this->args['booking_status'])){
-      $status_array = $this->args['booking_status'];
-      unset($this->args['booking_status']);
-    }
-    $qry = "select a.id from ".$wpdb->prefix."charter_bookings a
-      JOIN (SELECT date(charter_date) as the_date, id from ".$wpdb->prefix."charter_bookings) b
-      on a.id=b.id
-      where b.the_date = %s ";
-      if(isset($status_array)){
-        $qry .= ' and ( ';
-        $count = count($status_array);
-        foreach($status_array as $key=>$status){
-
-          $qry .= "booking_status = '".$status."' ";
-          if($key != $count-1){
-            $qry .= " || ";
-          }
-        }
-        $qry .= ") ";
-      }
-    if($this->args !== NUll && count($this->args) >= 2){
-        $x=0;
-      foreach($this->args as $key=>$value){
-        if($key != 'charter_date'){
-          $x++;
-          $qry .=  " AND " ;
-          $qry .= " ".$key." = '".$value."'";
-        }
-      }
-    }
-
-    $qry .= " ORDER BY charter_date ASC";
-    $this->query = $wpdb->prepare($qry, $this->args['charter_date']);
-  }
 
   private function prepare_past_query(){
     global $wpdb;
-    $sort = (!isset($this->args['sort'])) ? 'ASC' : $this->args['sort'];
-    $qry = "select id from ".$wpdb->prefix."charter_bookings
-where date(charter_date)  <= date(now()) ";
-    $qry .= " ORDER BY charter_date $sort";
+    $sort = (!isset($this->sort)) ? 'ASC' : $this->sort;
+    $qry = "select id from {$wpdb->prefix}charter_boat_bookings
+where date(start_datetime)  <= date(now()) ";
+    $qry .= " ORDER BY start_datetime $sort";
     $this->query = $wpdb->prepare($qry);
   }
 
 
   private function prepare_future_query(){
     global $wpdb;
-    $sort = (!isset($this->args['sort'])) ? "asc" : $this->args['sort'];
-    $qry = "select id from ".$wpdb->prefix."charter_bookings
-where date(charter_date)  >= date(now()) ";
-    $qry .= " ORDER BY date(charter_date) $sort";
+    $sort = (!isset($this->sort)) ? "asc" : $this->sort;
+    $qry = "select id from {$wpdb->prefix}charter_boat_bookings
+where date(start_datetime)  >= date(now()) ";
+    $qry .= " ORDER BY date(start_datetime) $sort";
     $this->query = $wpdb->prepare($qry);
   }
 
   private function prepare_booking_status_query(){
     global $wpdb;
-    $sort = (!isset($this->args['sort'])) ? 'ASC' : $this->args['sort'];
-    if('all' === $this->args['booking_status'] ){
-      $sort = (!isset($this->args['sort'])) ? 'ASC' : $this->args['sort'];
-      $qry = "select * from ".$wpdb->prefix."charter_bookings ";
-      $qry .= " ORDER BY charter_date $sort";
+    $sort = (!isset($this->sort)) ? 'ASC' : $this->sort;
+    if('all' === $this->value ){
+      $sort = (!isset($this->sort)) ? 'ASC' : $this->sort;
+      $qry = "select * from {$wpdb->prefix}charter_boat_bookings ";
+      $qry .= " ORDER BY start_datetime $sort";
       $this->query = $wpdb->prepare($qry);
     } else {
-      $qry = "select * from ".$wpdb->prefix."charter_bookings
+      $qry = "select * from {$wpdb->prefix}charter_boat_bookings
             where booking_status = %s ";
-      $qry .= " ORDER BY charter_date $sort";
-      $this->query = $wpdb->prepare($qry, $this->args['booking_status']);
+      $qry .= " ORDER BY start_datetime $sort";
+      $this->query = $wpdb->prepare($qry, $this->value);
     }
     
   }
 
   private function prepare_date_range_query(){
-    if( !array_key_exists( 'date_range', $this->args ) ){
-      trigger_error("args['date_rage'] is required and not set. query returns false from Class CB_Booking_Query ln 174", E_USER_ERROR);
-      return;
-    } else {
       global $wpdb;
-      $dates = $this->args['date_range'];
+      $dates = $this->value;
       $start_date = sanitize_text_field($dates['start']);
       $end_date = sanitize_text_field($dates['end']);
-      $sort = (!isset($this->args['sort'])) ? 'ASC' : $this->args['sort'];
-      $qry = "select id from ".$wpdb->prefix."charter_bookings
-  where date(charter_date) ";
-      if(is_array($this->args['date_range'])){
+      $sort = (!isset($this->sort)) ? 'ASC' : $this->sort;
+      $qry = "select id from {$wpdb->prefix}charter_boat_bookings
+  where date(start_datetime) ";
+      if(is_array($this->value)){
         $qry .= ">= '%s'
-  && date(charter_date) <= %s";
+  && date(start_datetime) <= %s";
       } else {
-        if($this->args['date_range'] == 'future'){
+        if($this->value == 'future'){
           $qry .= " >= date(now()) ";
         }
-        if($this->args['date_range'] == 'past'){
+        if($this->value == 'past'){
           $qry .= " <= now() ";
         }
       }
-      $qry .= " ORDER BY charter_date ".$sort;
+      $qry .= " ORDER BY start_datetime ".$sort;
       $this->query = $wpdb->prepare($qry, $start_date, $end_date);
+  }
+
+  /**
+     * Get charters by
+     * @param string field: id, customer_email, customer_phone, booking_status, date_range, past, future
+     * @param string value
+     * @value 
+     */
+    private function prepare_customer_email_query(){
+      global $wpdb;
+      $qry = "SELECT id FROM {$wpdb->prefix}charter_boat_bookings WHERE customer_email=%s ";
+      $qry .= " ORDER BY start_datetime ".$this->sort;
+      $this->query = $wpdb->prepare($qry, $this->value);
     }
-    
+
+  /**
+   * Get charters by
+   * @param string field: id, customer_email, customer_phone, booking_status, date_range, past, future
+   * @param string value
+   * @value 
+   */
+  private function prepare_customer_phone_query(){
+    global $wpdb;
+    $qry = "SELECT id FROM {$wpdb->prefix}charter_boat_bookings WHERE customer_phone=%s ";
+    $qry .= " ORDER BY start_datetime ".$this->sort;
+    $this->query = $wpdb->prepare($qry, $this->value);
   }
 
 } // end class declaration CB_Booking_Query
