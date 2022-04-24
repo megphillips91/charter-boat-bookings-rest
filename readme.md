@@ -36,16 +36,16 @@ At this point, the plan is to use this particular plugin as a sort of 'internal 
 ## A Gallery of plugins
 When I originally wrote Charter Boat Bookings, I did not fully understand ReactJS. In fact, I was only just learning it. Now that I have a mnuch more mature understanding and a better appreciation for how much easier it is to maintain...I want to build a gallery of plugins which are all quite separate each other as to better enable myself to maintain all the parts / peices and retire the ones that can be replaced by other plugins maintained by other people (I hope at some point). So...it shall be a series of plugins including the following:
 
-### WooCommerce Extension: Charter Payments
+### WooCommerce Extension: Charter Boat Booking Payments
 Depending on the user experience that eventually works itself into reality, I may be able to use an existing Woo extension but if not, I can pretty easily modify the Booking Blocks to "add to cart" in addition to "adding to bookings" and then I can consider what/if any integration between payment_status and booking_status needs to be considered. At the moment, most likely I figure just adding order_ids to the booking_meta table for every order associated with a particular booking. Although several of my charter boat captains are just wanting more like a customer statement view that shows bookings against payments and refunds more like a charter customer statement. 
 
-### Charter Boat Bookings: A Core Bookings Rest API
+### Charter Boat Bookings: The Core API
 Each of the blocks and the admin experience will live in separate plugins. Even if it seems insane, I want to keep them all separate so that other people can toy around with the customer facing shopping experience and the WP Admin experience that they like the best. Maybe at some point, this Booking Rest API will be useful to some other bookings plugins and I can get a little help maintaining the back end code, combining efforts on the core 'bookings' plugin rest api. 
 
-### Charter Booking Blocks: Booking Calendar
+### Charter Boat Booking Blocks: Booking Calendars
 The goal is to publish the booking calendar block and a "global" booking calendar block like the one that I offered in Charter Boat Bokings Pro. The global block will pull all the charters onto the same availability calendar. The Remote Booking Calendar block will offer affiliate bookings for boats living on different URLs. 
 
-### Charter Bookings Admin Experience
+### Charter Boat Bookings: Admin Experience
 And ReactJS WP-Admin experience or maybe a standable ReactJS PWA. I haven't decided yet on that one. Its honestly easier to do the standalone, and I think there is more long term potential if I do it that way because in theory, a SaaS Bookings Platform could be offered separately as its own thing not requiring an integrated WP Installation. And also, the components could perform double duty. 
 
 ## History
