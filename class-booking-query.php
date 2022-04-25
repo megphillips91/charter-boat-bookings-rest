@@ -8,7 +8,7 @@ use \DateInterval;
  * CB_Booking_Query
  * WPDB query against fields of the bookings table.
  * @param string required field: id, customer_email, customer_phone, booking_status, date_range, past, future
- * @param string required value: date_range comma separated string (ex: start_datetime, end_datetime)
+ * @param string required value: date_range comma separated string (ex: start_datetime | end_datetime)
  * @param string optional sort by start_datetime: ASC, DESC (default ASC)
  */
 
@@ -42,7 +42,7 @@ class CB_Booking_Query {
       $this->bookings = array();
       foreach($this->ids as $id){
         $charter_booking = new Charter_Booking();
-        $charter_booking->get_booking($id);
+        $charter_booking->get_booking_by_id($id);
         $this->bookings[] = $charter_booking;
       }
     } else {
@@ -129,16 +129,11 @@ class CB_Booking_Query {
   }
 
   private function set_date_range_array(){
-    $values = explode(', ', $this->value);
-    $date_range = array();
-    foreach($values as $value){
-      if( str_contains( $value, 'start:' ) ){
-        $date_range['start'] = str_replace('start: ', '', $value);
-      }
-      if( str_contains( $value, 'end:' ) ){
-        $date_range['end'] = str_replace('end: ', '', $value);
-      }
-    }
+    $values = explode(' | ', $this->value);
+    $date_range = array(
+      'start' => $values[0], 
+      'end' => $values[1]
+    );
     $this->value = $date_range;
   }
 

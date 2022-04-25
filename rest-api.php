@@ -90,7 +90,7 @@ class Charter_Boat_Rest_API {
      * 
      * Role | Scope: all | public
      * 
-     * @param start_datetime Y-m-d H:i:s in UTC
+     * @param start_datetime Y-m-d H:i:s in WP Timezone
      * @param duration in minutes
      * @return object
      */
@@ -101,7 +101,8 @@ class Charter_Boat_Rest_API {
             $response['error'] = "You are doing it wrong: start_datetime and duration are required parameters";
             return $response;
         }
-        $availability = new CB_Availability($params['start_datetime'], $params['duration']);
+        $UTC_start_datetime = get_UTC_time($params['start_datetime']);
+        $availability = new CB_Availability($UTC_start_datetime, $params['duration']);
         return $availability;
     }
 
@@ -160,7 +161,7 @@ class Charter_Boat_Rest_API {
      * 
      * Role | Scope: charter_admin | protected, charter_affiliate | protected
      * 
-     * @param string $start_datetime Y-m-d H:i:s in UTC
+     * @param string $start_datetime Y-m-d H:i:s in WordPress Time Zone
      * @param string $duration  in minutes
      * @param string customer_id  optional
      * @param string customer_name string required //first and last with spaces
@@ -176,27 +177,46 @@ class Charter_Boat_Rest_API {
         if( !$this->user_has_permission() ){
             return new \WP_Error( 'no_permission', 'Invalid user', array( 'status' => 404 ) );
         } else {
+            $response = array();
             $params = $request->get_params();
-            $required_params = array(
-                'booking_status',
-                'start_datetime',
-                'duration',
-                'start_location',
-                'end_location',
-                'tickets',
-                'is_private',
-                'customer_email',
-                'customer_phone',
-                'customer_name'
-            );
-            foreach($required_params as $required){
-                if(!isset($params[$required])){
-                    $params[$required] = NULL;
+            //convert time
+            $UTC_start_datetime = get_UTC_time($params['start_datetime']);
+            //get back to business
+            $availability = new CB_Availability($UTC_start_datetime, $params['duration']);
+            $response['availability'] = $availability->is_available;
+            if($availability->is_available === true){
+                $required_params = array(
+                    'booking_status',
+                    'start_datetime',
+                    'duration',
+                    'start_location',
+                    'end_location',
+                    'tickets',
+                    'is_private',
+                    'customer_email',
+                    'customer_phone',
+                    'customer_name'
+                );
+                foreach($required_params as $required){
+                    if(!isset($params[$required])){
+                        $params[$required] = NULL;
+                    }
                 }
+                $booking = new Charter_Booking();
+                $booking->save_booking($params);
+                return $booking;
+            } else {
+                $same_booking_time = new Charter_booking();
+                $same_booking_time->get_booking_by_start_datetime($params['start_datetime']);
+                if($same_booking_time->customer_email === $params['customer_email']){
+                    $response = array(
+                        'error' => "you're doing it wrong. This booking already exists. Edit the booking, please use the update function",
+                        'booking' => $same_booking_time,
+                    );
+                    return new \WP_Error( 'booking_exists', $response, array( 'status' => 418 ) );
+                }
+                return new \WP_Error( 'no_availabilty', 'Charter Boat Not Available', array( 'status' => 418 ) );
             }
-            $booking = new Charter_Booking();
-            $booking->save_booking($params);
-            return $booking;
         }
     }
 
