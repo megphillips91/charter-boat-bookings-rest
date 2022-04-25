@@ -23,7 +23,7 @@ class CB_Booking_Query {
   public $db_error;
   public $param_errors;
 
-  public function __construct($field, $value, $sort = ASC){
+  public function __construct($field, $value, $sort = 'ASC'){
     $this->field = $field;
     $this->value = trim($value);
     $this->sort = $sort;

@@ -3,16 +3,17 @@
  * Plugin Name: Charter Boat Bookings
  * Plugin URI: http://msp-media.org/projects/plugins/charter-bookings
  * Description: Charter Boat Bookings is is a back-end REST API for charter boats to take online bookings and reservations.
- * Contributors: megphillips91
+ * Author: Meg Phillips
  * Author URI: http://msp-media.org/
- * Version: 1.7.1
+ * Version: 2.0.1
  * License: GPL2+
  * http://www.gnu.org/licenses/gpl-3.0.html
+ * Text Domain: charter-boat-bookings
  *
  */
 
  /*
- This is the re-base from 1.7 on svn. I need to get the changes from yesterday in here. Charter Boat Bookings is free software: you can redistribute it and/or modify
+ Charter Boat Bookings is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 2 of the License, or
  any later version.
@@ -67,7 +68,7 @@ function cb_maybe_create_tables(){
   //=== charter boat bookings table
   $table_name = $wpdb->prefix . 'charter_boat_bookings';
   $sql = "CREATE TABLE $table_name (
-    id int(11) unsigned NOT NULL AUTO_INCREMENT,
+    id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     booking_status varchar(100) DEFAULT NULL,
     start_datetime datetime DEFAULT NULL,
     duration float DEFAULT NULL,
@@ -82,6 +83,33 @@ function cb_maybe_create_tables(){
     PRIMARY KEY (id)
   ) $charset_collate;";
   maybe_create_table($table_name, $sql );
+  
+  //=== charter boat bookings table
+  $table_name = $wpdb->prefix . 'charter_boat_booking_meta';
+  $sql = "CREATE TABLE $table_name (
+    id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    booking_id bigint(20) NOT NULL DEFAULT 0,
+    meta_key varchar(100) DEFAULT NULL,
+    meta_value longtext DEFAULT NULL,
+    PRIMARY KEY (id)
+  ) $charset_collate;";
+  maybe_create_table($table_name, $sql );
+
+}
+
+add_action( 'plugins_loaded', __NAMESPACE__.'\\charter_boat_bookings_check_for_woo' );
+function charter_boat_bookings_check_for_woo() {
+
+	if ( ! class_exists( 'WooCommerce' ) ) {
+		add_action( 'admin_notices', __NAMESPACE__.'\\woocommerce_missing_notice' );
+		return;
+	}
+
+}
+
+function woocommerce_missing_notice() {
+	/* translators: 1. URL link. */
+	echo '<div class="error"><p><strong>' . sprintf( esc_html__( 'Charter Boat Booking Payments requires WooCommerce to be installed and active. You can download %s here.', 'charter-boat-bookings' ), '<a href="https://woocommerce.com" target="_blank">WooCommerce</a>' ) . '</strong></p></div>';
 }
 
 /**
