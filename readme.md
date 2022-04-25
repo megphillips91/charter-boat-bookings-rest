@@ -15,7 +15,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Charter Boat Bookings is a boat booking system for captains - Sunset Sails, Daysails, Sportfishing, Inshore Fishing
 
-## MEG TODO
+### MEG TODO
 update_booking_meta: need to write update booking meta and decide how I want it to work...hmmm
 
 ## Description
