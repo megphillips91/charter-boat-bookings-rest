@@ -56,7 +56,8 @@ class CB_Booking_Query {
     switch ($this->query_type){
 
       case 'id':
-        if( is_int($this->value) ){
+        if( is_numeric($this->value) ){
+          $this->value = intval($this->value);
           return true;
         } else {
           $this->param_errors['value'] = 'id must be an integer';

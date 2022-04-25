@@ -63,7 +63,7 @@ class Charter_Booking {
             $this->set_times();
             $this->end_datetime_UTC = get_UTC_time($this->end_datetime);
             $this->set_buffered_times();
-            $this->get_booking_meta();
+            $this->get_booking_meta($this->id);
         } 
     }
     /**
@@ -78,15 +78,15 @@ class Charter_Booking {
           $this->errors['db_error'] = $wpdb->last_error;
           $this->id_query = $wpdb->last_query;
           if($booking){
-                foreach($booking as $key=>$value){
-                    $this->$key = $value;
-                }
-                //set the times
-                $this->start_datetime_UTC = get_UTC_time($this->start_datetime);
-                $this->set_times();
-                $this->end_datetime_UTC = get_UTC_time($this->end_datetime);
-                $this->set_buffered_times();
-                $this->get_booking_meta();
+            foreach($booking as $key=>$value){
+                $this->$key = $value;
+            }
+            //set the times
+            $this->start_datetime_UTC = get_UTC_time($this->start_datetime);
+            $this->set_times();
+            $this->end_datetime_UTC = get_UTC_time($this->end_datetime);
+            $this->set_buffered_times();
+            $this->get_booking_meta($this->id);
           }
           
     }
@@ -94,7 +94,15 @@ class Charter_Booking {
     /**
      * Get booking meta
      */
-    public function get_booking_meta(){
+    public function get_booking_meta($booking_id){
+        //check and initialize
+        if( !isset($booking_id)){
+            $this->errors[] = 'booking_id is required';
+            return new \WP_Error( 'required_parameters', 'booking_id is required', array( 'status' => 418 ) );
+        }
+        if($this->id === NULL){$this->get_booking_by_id($booking_id);}
+        
+        //query meta
         global $wpdb;
         $booking_meta = $wpdb->get_results(
             $wpdb->prepare("SELECT * from {$wpdb->prefix}charter_boat_booking_meta WHERE booking_id=%d",
@@ -104,11 +112,6 @@ class Charter_Booking {
         $this->id_query = $wpdb->last_query;
         $this->booking_meta = (array)$booking_meta;
     }
-
-    /**
-     * Add / Update Booking Meta
-     */
-    
 
     /**
      * pass in an array of booking details
@@ -122,16 +125,16 @@ class Charter_Booking {
         $wpdb->insert( 
             $wpdb->prefix.'charter_boat_bookings', 
             array(
-                'booking_status' => $booking_args['booking_status'],
-                'start_datetime' => $booking_args['start_datetime'],
-                'duration' => $booking_args['duration'],
-                'start_location'=>$booking_args['start_location'],
-                'end_location'=>$booking_args['end_location'],
-                'tickets'=>$booking_args['tickets'],
-                'is_private'=>$booking_args['is_private'],
-                'customer_name'=>$booking_args['customer_name'],
-                'customer_phone'=>$booking_args['customer_phone'],
-                'customer_email'=>$booking_args['customer_email'],
+                'booking_status'    => sanitize_text_field($booking_args['booking_status']),
+                'start_datetime'    => sanitize_text_field($booking_args['start_datetime']),
+                'duration'          => $booking_args['duration'],
+                'start_location'    => sanitize_text_field($booking_args['start_location']),
+                'end_location'      => sanitize_text_field($booking_args['end_location']),
+                'tickets'           => $booking_args['tickets'],
+                'is_private'        => sanitize_text_field($booking_args['is_private']),
+                'customer_name'     => sanitize_text_field($booking_args['customer_name']),
+                'customer_phone'    => sanitize_text_field($booking_args['customer_phone']),
+                'customer_email'    => sanitize_text_field($booking_args['customer_email']),
             ),
             array(
                 '%s',
@@ -189,23 +192,78 @@ class Charter_Booking {
         $this->get_booking_by_id($id);
     }
 
-    public function update_booking_meta($booking_id, $meta_key, $meta_value ){
+
+     /**
+      * Add Booking Meta
+      */
+      public function add_booking_meta($booking_id, $meta_key, $meta_value){
+        if( !isset($booking_id)){
+            $this->errors[] = 'meta_id is required';
+            return new \WP_Error( 'required_parameters', 'booking_id is required', array( 'status' => 418 ) );
+        }
+        global $wpdb;
         $wpdb->insert(
             "{$wpdb->prefix}charter_boat_booking_meta",
             array(
-                'booking_id' => $booking_id,
-                'meta_key'   => $meta_key,
-                'meta_value' => $meta_value
+                'booking_id' => intval($booking_id),
+                'meta_key'   => sanitize_text_field($meta_key),
+                'meta_value' => sanitize_text_field($meta_value),
+                'last_update' => wp_date('Y-m-d H:i:s')
             ),
             array(
                 '%d',
                 '%s',
                 '%s',
+                '%s',
+            )
+        );
+        $this->get_booking_by_id($booking_id);
+      }
+
+
+     /**
+     * Replace Booking Meta
+     */
+    public function update_booking_meta($booking_id, $meta_key, $meta_value, $meta_id ){
+        //validate
+        $response = array();
+        if(!isset($booking_id)){
+            $this->errors[] = 'booking_id is required';
+            return new \WP_Error( 'required_parameters', 'booking_id is required to update', array( 'status' => 418 ) );
+        }
+        if( !isset($meta_id)){
+            $this->errors[] = 'meta_id is required';
+            $this->get_booking_by_id($booking_id);
+            $response['booking_meta'] = $this->booking_meta; 
+            return new \WP_Error( 'required_parameters', $this->booking_meta, array( 'status' => 418 ) );
+        }
+        //replace
+        global $wpdb;
+        $wpdb->update(
+            "{$wpdb->prefix}charter_boat_booking_meta",
+            array(
+                'booking_id' => intval($booking_id),
+                'id' => intval($meta_id),
+                'meta_key'   => sanitize_text_field($meta_key),
+                'meta_value' => sanitize_text_field($meta_value),
+                'last_update' => wp_date('Y-m-d H:i:s')
+            ),
+            array(
+                'id' => $meta_id
+            ),
+            array(
+                '%d',
+                '%d',
+                '%s',
+                '%s',
+                '%s',
+            ),
+            array(
+                '%d',
             ),
         );
-        $this->get_booking_by_id($id);
+        $this->get_booking_by_id($booking_id);
     }
-
     /**
      * Set booking times: end time & buffered time string
      */

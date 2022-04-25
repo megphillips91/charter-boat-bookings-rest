@@ -42,10 +42,9 @@ class CB_Availability {
     $this->charterboat = new Charter_Boat();
     $this->passes_weeks_in_advance();
     $this->passes_blackouts();
-    $this->passes_hours_prior_notice();
+    //$this->passes_hours_prior_notice();
     $this->passes_open_today();
     $this->passes_booking_conflicts();
-    
   }
 
   private function passes_weeks_in_advance(){
@@ -53,6 +52,7 @@ class CB_Availability {
     $window->add(new DateInterval('P'.$this->charterboat->weeks_in_advance.'W'));
     if($this->query_start_object > $window){
       $this->passes_weeks_in_advance = false;
+      $this->is_available = false;
     } else {
       $this->passes_weeks_in_advance = true;
     }
@@ -66,6 +66,7 @@ class CB_Availability {
       $end = new DateTime($blackout['end'], new DateTimeZone(get_option('timezone_string')));
       if($start <= $this->query_start_object && $this->query_start_object <= $end){
         $this->passes_blackouts = false;
+        $this->is_available = false;
       } 
     }
   }
@@ -78,6 +79,7 @@ class CB_Availability {
       $this->passes_hours_prior_notice = true;
     } else {
       $this->passes_hours_prior_notice = false;
+      $this->is_available = false;
     }
   }
 
@@ -86,6 +88,7 @@ class CB_Availability {
     $date = wp_date('D', strtotime($this->query['start_datetime']));
     if(!in_array($date, $open_days)){
       $this->passes_open_today = false;
+      $this->is_available = false;
     } else {
       $this->passes_open_today = true;
     }

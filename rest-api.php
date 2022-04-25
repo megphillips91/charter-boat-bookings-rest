@@ -65,6 +65,14 @@ class Charter_Boat_Rest_API {
             'permission_callback' => '__return_true'
             ) 
         );
+
+        //add or update booking meta
+        register_rest_route( 'charter-boat-bookings/v3', 'update-booking-meta', array(
+            'methods' => 'POST',
+            'callback' =>array($this, 'update_booking_meta'),
+            'permission_callback' => '__return_true'
+            ) 
+        );
     }
 
 
@@ -184,7 +192,7 @@ class Charter_Boat_Rest_API {
             //get back to business
             $availability = new CB_Availability($UTC_start_datetime, $params['duration']);
             $response['availability'] = $availability->is_available;
-            if($availability->is_available === true){
+            if($availability->is_available !== false){
                 $required_params = array(
                     'booking_status',
                     'start_datetime',
@@ -215,7 +223,7 @@ class Charter_Boat_Rest_API {
                     );
                     return new \WP_Error( 'booking_exists', $response, array( 'status' => 418 ) );
                 }
-                return new \WP_Error( 'no_availabilty', 'Charter Boat Not Available', array( 'status' => 418 ) );
+                return new \WP_Error( 'no_availabilty', $availability, array( 'status' => 418 ) );
             }
         }
     }
@@ -247,6 +255,57 @@ class Charter_Boat_Rest_API {
         }
     }
 
+    /**
+     * Add or Update Booking Meta
+     * 
+     * Meta_key is not unique. Add as many meta_values as you want with the same meta_key
+     * To update a meta_key, meta_id is required. To fecth the meta_id, set replace TRUE and meta_id NULL
+     * 
+     * Role | Scope: charter_admin | protected, charter_affiliate | protected
+     * 
+     * @param int booking_id required
+     * @param string meta_key required
+     * @param string meta_value required
+     * @param int meta_id optional: default AUTO INCREMENT; see notes on param replace
+     * @param bool replace: default false; If replace true and meta_id is null, the call will return the meta_id and do nothing. Make a second call and provide the meta_id to replace
+     * 
+     */
+    public function update_booking_meta(\WP_REST_Request $request){
+        if( !$this->user_has_permission() ){
+            return new \WP_Error( 'no_permission', 'Invalid user', array( 'status' => 404 ) );
+        } else {
+            $params = $request->get_params();
+            $required_params = array(
+                'booking_id',
+                'meta_key',
+                'meta_value',
+            );
+            //check for missing parameters
+            foreach($required_params as $param){
+                if(!isset($params[$param])){
+                    return new \WP_Error( 'required_parameters', $param.' is required', array( 'status' => 418 ) );
+                }
+            }
+            //do business
+            $booking = new Charter_Booking();
+            $booking->get_booking_by_id($params['booking_id']);
+            $params['replace'] = (!isset($params['replace'])) ? false : $params['replace'] ;
+            $params['meta_id'] = (!isset($params['meta_id'])) ? NULL : $params['meta_id'] ;
+            if($params['replace'] === false){
+                $booking->add_booking_meta($params['booking_id'], $params['meta_key'], $params['meta_value'] );
+            } else {
+                $booking->update_booking_meta($params['booking_id'], $params['meta_key'], $params['meta_value'], $params['meta_id'], $params['replace'] );
+            }
+            $booking->get_booking_by_id($params['booking_id']);
+            $response = array($booking);
+            return $response;
+        }
+    }
+
+
+    /**
+     * checks user permissions
+     */
     protected function user_has_permission(){
         if( get_user_meta( get_current_user_id(), 'cb_charter_affiliate', true) === '' && !current_user_can('edit_others_posts') && get_user_meta( get_current_user_id(), 'charter_admin', true) === ''){
             return false;
@@ -255,6 +314,9 @@ class Charter_Boat_Rest_API {
         }
     }
 
+    /**
+     * checks if user is a charter admin
+     */
     protected function user_is_charter_admin(){
         if( get_user_meta( get_current_user_id(), 'cb_charter_admin', true) === '' && !current_user_can('edit_others_posts') && get_user_meta( get_current_user_id(), 'charter_admin', true) === ''){
             return false;

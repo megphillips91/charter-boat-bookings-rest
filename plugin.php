@@ -84,13 +84,14 @@ function cb_maybe_create_tables(){
   ) $charset_collate;";
   maybe_create_table($table_name, $sql );
   
-  //=== charter boat bookings table
+  //=== charter boat booking meta table
   $table_name = $wpdb->prefix . 'charter_boat_booking_meta';
   $sql = "CREATE TABLE $table_name (
     id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     booking_id bigint(20) NOT NULL DEFAULT 0,
     meta_key varchar(100) DEFAULT NULL,
     meta_value longtext DEFAULT NULL,
+    last_update datetime DEFAULT NULL,
     PRIMARY KEY (id)
   ) $charset_collate;";
   maybe_create_table($table_name, $sql );
