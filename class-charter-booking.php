@@ -106,6 +106,11 @@ class Charter_Booking {
     }
 
     /**
+     * Add / Update Booking Meta
+     */
+    
+
+    /**
      * pass in an array of booking details
      */
     public function save_booking($booking_args){

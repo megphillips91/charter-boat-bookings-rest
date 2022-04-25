@@ -15,6 +15,8 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Charter Boat Bookings is a boat booking system for captains - Sunset Sails, Daysails, Sportfishing, Inshore Fishing
 
+## MEG TODO
+update_booking_meta: need to write update booking meta and decide how I want it to work...hmmm
 
 ## Description
 WordPress Plugin supporting Rest API structure for charter boat bookings and reservations. The goal of this plugin is to serve as a backend REST API for whatever blocks, admin, etc needs to be created in ReactJS to build the UX. 
