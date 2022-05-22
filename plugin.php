@@ -65,6 +65,7 @@ function cb_maybe_create_tables(){
   require_once( $admin_php_path);
   $charset_collate = $wpdb->get_charset_collate();
 
+  // ota_id would hold the payment integration order_id or payment_id
   //=== charter boat bookings table
   $table_name = $wpdb->prefix . 'charter_boat_bookings';
   $sql = "CREATE TABLE $table_name (
@@ -76,6 +77,7 @@ function cb_maybe_create_tables(){
     end_location varchar(100) DEFAULT NULL,
     tickets int(11) DEFAULT NULL,
     is_private varchar(100) DEFAULT NULL,
+    ota_id varchar(100) DEFAULT NULL,
     customer_id varchar(100) DEFAULT NULL,
     customer_phone varchar(100) DEFAULT NULL,
     customer_name varchar(100) DEFAULT NULL,
@@ -128,6 +130,13 @@ function woocommerce_missing_notice() {
 * =======================================
 */
 // MEGTODO: deactivation hook to delete the sunset times table which we do not need.
+
+
+/**
+ * MEGTODO: the hours notice field should have some relation to the cycle of the api updating and sync
+ * so in other words if a captain wants a 4 hours notice, then the sync cycle should be less than 4 hours and should notify the captain every time that it syncs whether or not
+ * there is a new charter. 
+ */
  
 
 

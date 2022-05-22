@@ -43,7 +43,7 @@ class Charter_Boat_Rest_API {
         );
 
         //get charters
-        register_rest_route( 'charter-boat-bookings/v3', 'get-charters', array(
+        register_rest_route( 'charter-boat-bookings/v3', 'get-charters-by', array(
             'methods' => 'POST',
             'callback' =>array($this, 'get_charters_by'),
             'permission_callback' => '__return_true'
@@ -73,6 +73,7 @@ class Charter_Boat_Rest_API {
             'permission_callback' => '__return_true'
             ) 
         );
+
     }
 
 
@@ -156,6 +157,7 @@ class Charter_Boat_Rest_API {
         if( !$this->user_has_permission() ){
             return new \WP_Error( 'no_permission', 'Invalid user', array( 'status' => 404 ) );
         } else {
+            //MEGTODO: error escaping here for missing fields
             $params = $request->get_params();
             $params['sort'] = ( !isset($params['sort']) ) ? 'ASC': $params['sort'];
             $params['value'] = ( $params['field'] === 'id' ) ? intval( $params['value'] ) : $params['value'] ;

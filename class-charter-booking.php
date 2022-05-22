@@ -317,7 +317,7 @@ class Charter_Booking {
 
 }
 
-class Insert_Booking_From_Woo_Orders extends Charter_Booking {
+class Insert_Booking_From_Woo_Order extends Charter_Booking {
     public $year;
     public $order_booking_data;
     public $order_booking_meta;
