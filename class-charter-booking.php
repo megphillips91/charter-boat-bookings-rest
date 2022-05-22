@@ -132,6 +132,7 @@ class Charter_Booking {
                 'end_location'      => sanitize_text_field($booking_args['end_location']),
                 'tickets'           => $booking_args['tickets'],
                 'is_private'        => sanitize_text_field($booking_args['is_private']),
+                'ota_id'            => sanitize_text_field($booking_args['ota_id']),
                 'customer_name'     => sanitize_text_field($booking_args['customer_name']),
                 'customer_phone'    => sanitize_text_field($booking_args['customer_phone']),
                 'customer_email'    => sanitize_text_field($booking_args['customer_email']),
@@ -143,6 +144,7 @@ class Charter_Booking {
                 '%s',
                 '%s',
                 '%d',
+                '%s',
                 '%s',
                 '%s',
                 '%s',
@@ -162,16 +164,17 @@ class Charter_Booking {
     public function edit_booking($id, $args){
        global $wpdb;
        $charter_attributes = array(
-        'booking_status' => '%s',
-        'start_datetime' => '%s',
-        'duration'=> '%f',
-        'start_location'=> '%s',
-        'end_location'=> '%s',
-        'tickets'=> '%d',
-        'is_private'=> '%s',
-        'customer_name'=> '%s',
-        'customer_phone'=> '%s',
-        'customer_email'=> '%s',
+        'booking_status'    => '%s',
+        'start_datetime'    => '%s',
+        'duration'          => '%f',
+        'start_location'    => '%s',
+        'end_location'      => '%s',
+        'tickets'           => '%d',
+        'is_private'        => '%s',
+        'ota_id'            => '%s',
+        'customer_name'     => '%s',
+        'customer_phone'    => '%s',
+        'customer_email'    => '%s',
        );
        $type = array();
        foreach($args as $key=>$arg){
@@ -205,10 +208,10 @@ class Charter_Booking {
         $wpdb->insert(
             "{$wpdb->prefix}charter_boat_booking_meta",
             array(
-                'booking_id' => intval($booking_id),
-                'meta_key'   => sanitize_text_field($meta_key),
-                'meta_value' => sanitize_text_field($meta_value),
-                'last_update' => wp_date('Y-m-d H:i:s')
+                'booking_id'    => intval($booking_id),
+                'meta_key'      => sanitize_text_field($meta_key),
+                'meta_value'    => sanitize_text_field($meta_value),
+                'last_update'   => wp_date('Y-m-d H:i:s')
             ),
             array(
                 '%d',
