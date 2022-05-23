@@ -56,7 +56,10 @@ class Charter_Booking {
         $this->id_query = $wpdb->last_query;
         if($booking){
             foreach($booking as $key=>$value){
-            $this->$key = $value;
+                $this->$key = $value;
+                if($key === 'customer_phone'){
+                    $this->$key = cb_prepare_phone( $value );
+                }
             }
             //set the times
             $this->start_datetime_UTC = get_UTC_time($this->start_datetime);
