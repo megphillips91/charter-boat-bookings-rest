@@ -7,7 +7,7 @@ Author URI: https://msp-media.org/
 
 Donate link: https://msp-media.org/product/support-open-source/
 
-Stable tag: 2.0.01
+Stable tag: 2.0.2.1
 
 License: GPLv2 or later
 
