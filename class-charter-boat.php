@@ -12,28 +12,32 @@ use \DateTimeZone;
  * WooCommerce can integrate, but you need an additional plugin to enable online payments for bookings
  */
 class Charter_Boat {
-   public $captain;
-   public $terms; //a full url
-   public $faqs; //a full url
-   public $capacity;
-   private $open_weather_key;
-   public $temperature_units;
-   public $wind_units;
-   public $weeks_in_advance;
-   public $durations;
-   public $buffer_between; //so this gets added to each charter duration during availability checks
-   public $hours_prior_notice; //so this gets added to the start time of the desired start time to check if that works?
-   public $open_days;
-   public $blackouts;
-   private $weather_key;
+    public $contact;
+    public $captain;
+    public $captain_data;
+    public $terms; //a full url
+    public $faqs; //a full url
+    public $capacity;
+    private $open_weather_key;
+    public $temperature_units;
+    public $wind_units;
+    public $weeks_in_advance;
+    public $durations;
+    public $buffer_between; //so this gets added to each charter duration during availability checks
+    public $hours_prior_notice; //so this gets added to the start time of the desired start time to check if that works?
+    public $open_days;
+    public $blackouts;
+    private $weather_key;
 
    public function __construct(){
-        $this->get_boat_settings();
+       $this->get_contact_details();
+       $this->get_boat_settings();
+       $this->get_captain_details();
    }
 
    private function get_boat_settings(){
        $this->capacity = get_option('cb_booking_capacity');
-       $this->captain = get_option('cb_captain'); //user_id
+       $this->captain = get_option('cb_captain');
        $this->durations = get_option('cb_durations');
        $this->open_days = get_option('cb_open_days');
        $this->terms = get_option('cb_terms_slug');
@@ -45,6 +49,24 @@ class Charter_Boat {
        $this->temperature_units = get_option('cb_temp_units');
        $this->weather_key = get_option('cb_open_weather_key');
        $this->blackouts = new CB_Blackouts();
+   }
+
+   protected function get_captain_details(){
+       $captain = \get_user_by('id', get_option('cb_captain'));
+       $captain_data = array(
+            'name' => $captain->display_name,
+            'email' => $captain->user_email,
+       );
+       $this->captain_data = $captain_data;
+   }
+
+   protected function get_contact_details(){
+       $contact = array();
+       $contact['phone'] = get_option('cb_phone');
+       $contact['email'] = get_option('cb_email');
+       $contact['instagram'] = get_option('cb_instagram');
+       $contact['facebook'] = get_option('cb_facebook');
+       $this->contact = $contact;
    }
 
 }
