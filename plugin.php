@@ -5,7 +5,7 @@
  * Description: Charter Boat Bookings is is a back-end REST API for charter boats to take online bookings and reservations.
  * Author: Meg Phillips
  * Author URI: http://msp-media.org/
- * Version: 2.0.1
+ * Version: 2.0.2
  * License: GPL2+
  * http://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: charter-boat-bookings
