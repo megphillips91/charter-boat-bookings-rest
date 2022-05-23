@@ -309,7 +309,7 @@ class Charter_Boat_Rest_API {
      * checks user permissions
      */
     protected function user_has_permission(){
-        if( get_user_meta( get_current_user_id(), 'cb_charter_affiliate', true) === '' && !current_user_can('edit_others_posts') && get_user_meta( get_current_user_id(), 'charter_admin', true) === ''){
+        if( get_user_meta( get_current_user_id(), 'cb_charter_affiliate', true) === '' || !current_user_can('edit_others_posts') || get_user_meta( get_current_user_id(), 'charter_admin', true) === ''){
             return false;
         } else {
             return true;
@@ -320,7 +320,7 @@ class Charter_Boat_Rest_API {
      * checks if user is a charter admin
      */
     protected function user_is_charter_admin(){
-        if( get_user_meta( get_current_user_id(), 'cb_charter_admin', true) === '' && !current_user_can('edit_others_posts') && get_user_meta( get_current_user_id(), 'charter_admin', true) === ''){
+        if( get_user_meta( get_current_user_id(), 'cb_charter_admin', true) === '' || !current_user_can('edit_others_posts') || get_user_meta( get_current_user_id(), 'charter_admin', true) === ''){
             return false;
         } else {
             return true;
