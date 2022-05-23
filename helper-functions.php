@@ -34,6 +34,18 @@ function cb_wp_collapse($results, $fieldname){
 	return $array;
 }
 
+/**
+ * global public helper functions
+ */
+function cb_prepare_phone($phone){
+	$phone = str_replace(" ", "", $phone);
+	$phone = str_replace("-", "", $phone);
+	$phone = str_replace("(", "", $phone);
+	$phone = str_replace(")", "", $phone);
+	$phone = str_replace("+1", "", $phone);
+	return $phone;
+	}
+
 
 
 ?>

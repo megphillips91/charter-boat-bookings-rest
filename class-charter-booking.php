@@ -133,7 +133,7 @@ class Charter_Booking {
                 'tickets'           => $booking_args['tickets'],
                 'is_private'        => sanitize_text_field($booking_args['is_private']),
                 'ota_id'            => sanitize_text_field($booking_args['ota_id']),
-                'customer_name'     => sanitize_text_field($booking_args['customer_name']),
+                'customer_name'     => sanitize_text_field( cb_prepare_phone( $booking_args['customer_name'] ) ),
                 'customer_phone'    => sanitize_text_field($booking_args['customer_phone']),
                 'customer_email'    => sanitize_text_field($booking_args['customer_email']),
             ),

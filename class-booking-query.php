@@ -161,7 +161,7 @@ where date(start_datetime)  <= date(now()) ";
     $sort = (!isset($this->sort)) ? "asc" : $this->sort;
     $qry = "select id from {$wpdb->prefix}charter_boat_bookings
 where date(start_datetime)  >= date(now()) ";
-    $qry .= " ORDER BY date(start_datetime) $sort";
+    $qry .= " ORDER BY date(start_datetime) asc";
     $this->query = $wpdb->prepare($qry);
   }
 
